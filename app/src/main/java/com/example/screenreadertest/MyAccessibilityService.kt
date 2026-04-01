@@ -27,6 +27,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import java.util.Calendar
+import android.text.style.BackgroundColorSpan
+
 
 class MyAccessibilityService : AccessibilityService() {
     private var lastDetectedAmount: Int = 0
@@ -332,7 +334,8 @@ class MyAccessibilityService : AccessibilityService() {
 
     private fun getUsageSummaryViews(
         context: Context,
-        highlightColor: Int
+        highlightColor: Int,
+        highlightAlpha: Int = 255
     ): Triple<TextView, TextView, TextView> {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -343,14 +346,14 @@ class MyAccessibilityService : AccessibilityService() {
         val countText = "$orderCount"
         val amountText = "%,d".format(orderAmount)
         val summaryText = "배달 ${countText}회 ${amountText}원 사용"
-
+        val alphaColor = Color.argb(highlightAlpha, Color.red(highlightColor), Color.green(highlightColor), Color.blue(highlightColor))
         val summarySpannable = SpannableString(summaryText).apply {
             val boldTargets = listOf(countText, amountText)
             for (target in boldTargets) {
                 val start = indexOf(target)
                 if (start >= 0) {
                     setSpan(StyleSpan(Typeface.BOLD), start, start + target.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    setSpan(ForegroundColorSpan(highlightColor), start, start + target.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    setSpan(ForegroundColorSpan(alphaColor), start, start + target.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }
@@ -401,7 +404,7 @@ class MyAccessibilityService : AccessibilityService() {
         }
         windowManager.addView(backgroundOverlayView, bgParams)
 
-        val highlightColor = Color.parseColor("#0CEFD3")
+        val highlightColor = Color.parseColor("#33D0D0")
         val (questionTextView, subTextView, summaryTextView) = getUsageSummaryViews(this, highlightColor)
         questionTextView.setPadding(0, 0, 0, 60)
         subTextView.setPadding(0, 0, 0, 10)
