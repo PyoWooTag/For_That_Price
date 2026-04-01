@@ -43,7 +43,7 @@ object DeliveryEventManager {
         val file = getDataFile(context)
         val currentArray = JSONArray(file.readText())
         val database = FirebaseDatabase.getInstance()
-        val myRef = database.getReference("Order")
+        val myRef = database.getReference("Kcc_Order") //수정
 
         val uid = Firebase.auth.currentUser?.uid ?: "anonymous"
 
