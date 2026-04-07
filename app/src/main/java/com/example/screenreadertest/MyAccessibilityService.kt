@@ -27,6 +27,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import java.util.Calendar
+import android.text.style.BackgroundColorSpan
+
 
 class MyAccessibilityService : AccessibilityService() {
     private var lastDetectedAmount: Int = 0
@@ -332,7 +334,8 @@ class MyAccessibilityService : AccessibilityService() {
 
     private fun getUsageSummaryViews(
         context: Context,
-        highlightColor: Int
+        highlightColor: Int,
+        highlightAlpha: Int = 255
     ): Triple<TextView, TextView, TextView> {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -343,14 +346,14 @@ class MyAccessibilityService : AccessibilityService() {
         val countText = "$orderCount"
         val amountText = "%,d".format(orderAmount)
         val summaryText = "배달 ${countText}회 ${amountText}원 사용"
-
+        val alphaColor = Color.argb(highlightAlpha, Color.red(highlightColor), Color.green(highlightColor), Color.blue(highlightColor))
         val summarySpannable = SpannableString(summaryText).apply {
             val boldTargets = listOf(countText, amountText)
             for (target in boldTargets) {
                 val start = indexOf(target)
                 if (start >= 0) {
                     setSpan(StyleSpan(Typeface.BOLD), start, start + target.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    setSpan(ForegroundColorSpan(highlightColor), start, start + target.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    setSpan(ForegroundColorSpan(alphaColor), start, start + target.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }
@@ -401,7 +404,7 @@ class MyAccessibilityService : AccessibilityService() {
         }
         windowManager.addView(backgroundOverlayView, bgParams)
 
-        val highlightColor = Color.parseColor("#00C4C4")
+        val highlightColor = Color.parseColor("#33D0D0")
         val (questionTextView, subTextView, summaryTextView) = getUsageSummaryViews(this, highlightColor)
         questionTextView.setPadding(0, 0, 0, 60)
         subTextView.setPadding(0, 0, 0, 10)
@@ -428,7 +431,8 @@ class MyAccessibilityService : AccessibilityService() {
         val yesButton = Button(this).apply {
             text = "네"
             textSize = 16f
-            setTextColor(Color.WHITE)
+            setTextColor(Color.BLACK)
+            setTypeface(null, Typeface.BOLD)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 20f
@@ -475,17 +479,20 @@ class MyAccessibilityService : AccessibilityService() {
         val noButton = Button(this).apply {
             text = "아니요"
             textSize = 16f
-            setTextColor(Color.WHITE)
+            setTextColor(Color.BLACK)
+            setTypeface(null, Typeface.BOLD)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 20f // ← 모서리 둥글게
-                setColor(Color.parseColor("#00C4C4"))
+                setColor(Color.parseColor("#0CEFD3"))
             }
+            elevation = 0f
+            stateListAnimator = null
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { marginEnd = 8 }
-            setPadding(12,4,12,4)
+            setPadding(20, 10, 20, 10)
             setOnClickListener {
                 val now = System.currentTimeMillis()
                 if (now - lastNoClickTime < 5 * 60 * 1000) {
@@ -587,6 +594,7 @@ class MyAccessibilityService : AccessibilityService() {
             text = "네"
             gravity = Gravity.CENTER
             textSize = 16f
+            setTypeface(null, Typeface.BOLD)
             setTextColor(Color.parseColor("#666666")) // 회색 글자
             setBackgroundColor(Color.TRANSPARENT) // 배경은 흰색
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
@@ -622,11 +630,12 @@ class MyAccessibilityService : AccessibilityService() {
         }
 
         val noButton = TextView(this).apply {
+
             text = "아니요"
             gravity = Gravity.CENTER
             textSize = 16f
             setTextColor(Color.WHITE)
-
+            setTypeface(null, Typeface.BOLD)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadii = floatArrayOf(
